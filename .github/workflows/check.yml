@@ -1,0 +1,17 @@
+name: 检查行程格式
+
+on:
+  push:
+    paths: ["data.js"]
+  pull_request:
+    paths: ["data.js"]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node scripts/check-data.mjs

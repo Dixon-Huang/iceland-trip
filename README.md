@@ -17,14 +17,36 @@ App 里的「导航」按钮会打开 Google 地图或苹果地图。出发前�
 
 ## 修改行程
 
-所有内容都在 `data.js` 里。改完后把 `sw.js` 里的 `VERSION` 改一下，手机有网时打开 App，在「须知」页点「检查更新」。
+只需要改 `data.js` 一个文件。
+
+1. 在 GitHub 打开 `data.js`，点右上角铅笔图标
+2. 修改后点 **Commit changes**
+3. 约 1–2 分钟后网站更新；联网打开 App，重开一次即可看到
+
+**改一项安排**：找到那一天的 `items`，每一行是一项：
+
+```js
+{ t: "10:30", w: "Seljalandsfoss", n: "备注，可省略", p: "seljalands" },
+```
+
+- `t` 时间，`w` 内容，`n` 备注（可删），`p` 地点代号（可删，有它才会出现导航按钮）
+- 每行末尾的逗号不能少；引号用英文引号 `"`
+
+**加一个新地点**：在最上面的 `places` 里加一行，再在 `items` 里用它的代号：
+
+```js
+newplace: { n: "显示的名字", q: "Google 地图里搜索用的名字", lat: 64.0, lon: -21.0, k: "sight" },
+```
+
+提交后，仓库的 Actions 页会自动检查格式。出现红叉说明有错，点进去能看到哪一天、哪一项写错了；这期间 App 继续显示上一个正确的版本。
 
 ## 文件
 
 | 文件 | 作用 |
 | --- | --- |
 | `index.html` / `style.css` / `app.js` | 界面 |
-| `data.js` | 行程、地点、清单 |
+| `data.js` | 行程、地点、清单（改行程只改这个） |
 | `map-shape.js` | 冰岛海岸线（Natural Earth 1:10m，公有领域） |
 | `sw.js` | 离线缓存 |
+| `scripts/`、`.github/workflows/` | 每小时更新路况天气极光；检查行程格式 |
 | `manifest.webmanifest`、`icons/` | 主屏幕图标 |

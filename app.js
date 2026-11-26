@@ -1,6 +1,13 @@
 (() => {
 "use strict";
-const T = window.TRIP, P = T.places, S = window.MAP_SHAPE;
+let T = window.TRIP;
+try {
+  const ok = T && Array.isArray(T.days) && T.days.length && T.places && T.days.every(d => d.date && Array.isArray(d.items));
+  if (ok) localStorage.setItem("ice-trip-good", JSON.stringify(T));
+  else { T = JSON.parse(localStorage.getItem("ice-trip-good")); window.TRIP = T; }
+} catch {}
+if (!T) { document.body.innerHTML = '<p style="padding:24px">行程文件格式有误，请检查 data.js</p>'; throw new Error("data.js invalid"); }
+const P = T.places, S = window.MAP_SHAPE;
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const DAY_COLORS = ["#7cc4ff", "#5ee0b0", "#ffcf6b", "#ff8fb1", "#c79bff", "#ff9f5a", "#9be15d", "#b0c4d8"];

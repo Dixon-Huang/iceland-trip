@@ -1,5 +1,5 @@
 // 离线缓存：全部文件预先缓存，之后优先读缓存；有网时后台更新。
-const VERSION = "v6-2026-11-26";
+const VERSION = "v7-2026-11-26";
 const CACHE = "iceland-" + VERSION;
 const FILES = [
   "./", "index.html", "style.css", "app.js", "data.js", "map-shape.js", "manifest.webmanifest",
@@ -21,6 +21,17 @@ self.addEventListener("fetch", e => {
   const url = new URL(e.request.url);
   if (e.request.method !== "GET" || url.origin !== location.origin) return; // 外部链接不拦截
   if (url.pathname.endsWith("data/live.json")) return; // 实时数据直接走网络，离线时由页面读取本地保存的上一份
+  if (url.pathname.endsWith("/data.js")) { // 行程：网络优先，3 秒拿不到就用缓存
+    e.respondWith((async () => {
+      const cache = await caches.open(CACHE);
+      try {
+        const res = await Promise.race([fetch(e.request, { cache: "no-store" }), new Promise((_, rej) => setTimeout(() => rej(), 3000))]);
+        if (res && res.ok) { cache.put("data.js", res.clone()); return res; }
+      } catch {}
+      return (await cache.match("data.js")) || fetch(e.request);
+    })());
+    return;
+  }
   e.respondWith(
     caches.match(e.request, { ignoreSearch: true }).then(hit => {
       const net = fetch(e.request).then(res => {
