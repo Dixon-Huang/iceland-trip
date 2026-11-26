@@ -271,7 +271,8 @@ function renderChips() {
   $("#dayChips").innerHTML = chips.join("");
   // 当天地点编号列表（与地图上的数字对应）
   const ml = $("#mapList");
-  if (!mapDay) { ml.innerHTML = `<p class="muted">选一天可以看到当天的编号地点和导航按钮。白点是住宿。</p>`; return; }
+  ml.style.display = mapDay ? "" : "none";
+  if (!mapDay) { ml.innerHTML = ""; return; }
   ml.innerHTML = `<ul class="tl">${mapPlaces(mapDay).map((k, n) => {
     const d = T.days.find(x => x.date === mapDay); const it = d.items.find(i => i.p === k && !i.w.startsWith("出发")) || d.items.find(i => i.p === k);
     return `<li><span class="t">${n + 1}</span><span class="w">${esc(P[k].n)}${it ? `<span class="n">${esc(it.t)}</span>` : `<span class="n">今晚住宿</span>`}</span><button class="nav" data-place="${k}">导航</button></li>`;
