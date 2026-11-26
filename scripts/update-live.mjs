@@ -24,13 +24,19 @@ async function get(url, type = "json") {
 /* ---------------- 路况 ---------------- */
 // 每天要看的路：「路名」整条匹配；「Hringvegur」（1 号公路）再按路段地名筛选
 const ROADS = {
-  "2026-12-02": { roads: ["Reykjanesbraut", "Þrengslavegur"], ring: ["Hellisheiði", "Sandskeið", "Svínahraun", "Kambar", "Hveragerði", "Ölfus", "Selfoss"] },
-  "2026-12-03": { roads: ["Þingvallavegur", "Lyngdalsheiðarvegur", "Laugarvatnsvegur", "Biskupstungnabraut", "Skeiða- og Hrunamannavegur", "Sólheimavegur"], ring: ["Selfoss"] },
-  "2026-12-04": { roads: ["Dyrhólavegur"], ring: ["Selfoss", "Þjórsá", "Hella", "Rangá", "Hvolsvöllur", "Markarfljót", "Eyjafjöll", "Skógar", "Sólheima", "Mýrdal", "Vík", "Reynisfjall"], ex: ["Mýrdalssand"] },
-  "2026-12-05": { roads: [], ring: ["Vík", "Mýrdalssand", "Kúðafljót", "Eldhraun", "Kirkjubæjarklaustur", "Klaustur", "Brunasand", "Skeiðarársand", "Öræfi", "Skaftafell", "Breiðamerkursand", "Jökulsárlón", "Suðursveit", "Hali"] },
-  "2026-12-06": { roads: ["Þrengslavegur"], ring: ["Reynisfjall", "Vík", "Mýrdal", "Sólheima", "Skógar", "Eyjafjöll", "Markarfljót", "Hvolsvöllur", "Rangá", "Hella", "Þjórsá", "Selfoss", "Ölfus", "Hveragerði", "Kambar", "Hellisheiði", "Svínahraun", "Sandskeið"], ex: ["Mýrdalssand"] },
+  // KEF → 雷克雅未克 → Hellisheiði → Selfoss
+  "2026-12-02": { roads: ["Reykjanesbraut"], ring: ["Rauðavatn", "Nesjavallaleið", "Hellisheiði", "Fossvellir", "Selfoss - Hveragerði"] },
+  // 黄金圈：35 / 36 / 365 / 37
+  "2026-12-03": { roads: ["Þingvallavegur", "Lyngdalsheiðarvegur", "Laugarvatnsvegur", "Biskupstungnabraut"], ring: [], ex: ["Mosfellsdal", "Mosfellsheiði", "Grafningsvegur"] },
+  // Selfoss → Vík
+  "2026-12-04": { roads: ["Dyrhólavegur"], ring: ["Þjórsá", "Hella - Þjórsá", "Hvolsvöllur", "Markarfljót", "Steinar", "Dyrhólavegur - ", "Reynisfjall"] },
+  // Vík → Hali
+  "2026-12-05": { roads: [], ring: ["Mýrdalssand", "Skálm", "Skaftárungu", "Eldhraun", "Síðu", "Skeiðarársand", "Freysnes", "Fagurhólsmýri", "Breiðamerkursand", "(Hólmur) - Jökulsá"] },
+  // Vík → 雷克雅未克
+  "2026-12-06": { roads: [], ring: ["Reynisfjall", "Dyrhólavegur - ", "Steinar", "Markarfljót", "Hvolsvöllur", "Hella - Þjórsá", "Þjórsá", "Selfoss - Hveragerði", "Hellisheiði", "Fossvellir", "Nesjavallaleið", "Rauðavatn"] },
   "2026-12-07": { roads: [], ring: [] },
-  "2026-12-08": { roads: ["Krýsuvíkurvegur", "Suðurstrandarvegur", "Nesvegur", "Grindavíkurvegur", "Reykjanesbraut", "Hafnavegur"], ring: [] },
+  // Reykjanes 半岛
+  "2026-12-08": { roads: ["Krýsuvíkurvegur", "Suðurstrandarvegur", "Nesvegur", "Grindavíkurvegur", "Reykjanesbraut", "Hafnavegur"], ring: [], ex: ["Selvogur", "sýslumörk"] },
   "2026-12-09": { roads: [], ring: [] }
 };
 const COND_ZH = {
@@ -43,10 +49,10 @@ const SEV = s => /Closed|Impassable/i.test(s) ? 4 : /Storm/i.test(s) ? 4 : /Slip
 function roadsForDay(feed, date) {
   const cfg = ROADS[date]; if (!feed || !cfg || (!cfg.roads.length && !cfg.ring.length)) return null;
   const segs = feed.filter(r => {
-    const full = r.FulltNafnButs || ""; const road = full.split(":")[0].trim();
-    if (cfg.roads.includes(road)) return true;
-    if (road === "Hringvegur") { const sec = full + " " + (r.StuttNafnButs || ""); return cfg.ring.some(k => sec.includes(k)) && !(cfg.ex || []).some(k => sec.includes(k)); }
-    return false;
+    const full = (r.FulltNafnButs || "").trim();
+    if ((cfg.ex || []).some(k => full.includes(k))) return false;
+    if (/^Hringvegur/.test(full)) return cfg.ring.some(k => full.includes(k)); // 路名写法不统一：「Hringvegur:」「Hringvegur um …」「Hringvegur.」
+    return cfg.roads.some(rd => full.startsWith(rd));
   }).map(r => ({ n: r.FulltNafnButs, c: r.AstandLysingEn || "", zh: COND_ZH[r.AstandLysingEn] || r.AstandLysingEn || "未知", s: SEV(r.AstandLysingEn || ""), t: r.DagsSkrad }));
   if (!segs.length) return { worst: null, bad: [], total: 0 };
   segs.sort((a, b) => b.s - a.s);
@@ -159,7 +165,7 @@ for (const d of T.days) {
   };
 }
 // 路况调试：列出 1 号公路的路段名，方便核对筛选关键词
-if (feed) out.ringSections = [...new Set(feed.filter(r => (r.FulltNafnButs || "").startsWith("Hringvegur")).map(r => r.FulltNafnButs))];
+if (feed) out.ringSections = [...new Set(feed.filter(r => /^Hringvegur/.test(r.FulltNafnButs || "")).map(r => r.FulltNafnButs))];
 out.sources = { road: !!feed, kp: !!kp, imo: !!imo };
 
 fs.mkdirSync(new URL("../data/", import.meta.url), { recursive: true });
