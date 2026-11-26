@@ -235,8 +235,11 @@ function mapPlaces(day) {
   const d = T.days.find(x => x.date === day); const out = [];
   d.items.forEach(it => { if (it.p && !out.includes(it.p)) out.push(it.p); });
   if (d.sleep && !out.includes(d.sleep)) out.push(d.sleep);
-  return out;
+  const st = startOf(day);
+  return st ? [st, ...out.filter(k => k !== st)] : out; // 出发地（前一晚住处）排第一
 }
+function startOf(day) { const i = T.days.findIndex(x => x.date === day); return i > 0 ? T.days[i - 1].sleep : null; }
+const mkLabel = (day, n) => { const st = startOf(day); return st ? (n === 0 ? "起" : String(n)) : String(n + 1); };
 function fitTo(day) {
   const pts = [];
   if (day) { (T.routes[day] || []).forEach(([a, b]) => pts.push(proj(a, b))); mapPlaces(day).forEach(k => pts.push(proj(P[k].lat, P[k].lon))); }
@@ -284,9 +287,10 @@ function drawMap() {
   pts.forEach(({ k, n, p, x, y }) => {
     const ci = mapDay ? T.days.findIndex(d => d.date === mapDay) : T.days.findIndex(d => d.items.some(it => it.p === k) || d.sleep === k);
     const col = DAY_COLORS[Math.max(0, ci)];
-    markH += `<g class="mk" data-place="${k}" style="cursor:pointer"><circle cx="${x}" cy="${y}" r="${r * 1.6}" fill="transparent"/><circle cx="${x}" cy="${y}" r="${mr}" fill="${p.k === "hotel" ? "#ffffff" : col}" stroke="#0b1d2e" stroke-width="${px * 1.5}"/>`;
-    if (mapDay) markH += `<text x="${x}" y="${y + fs * .36}" font-size="${fs}" text-anchor="middle" font-weight="700" fill="#0b1d2e">${n + 1}</text>`;
-    markH += `</g>`;
+    let m = `<g class="mk" data-place="${k}" style="cursor:pointer"><circle cx="${x}" cy="${y}" r="${r * 1.6}" fill="transparent"/><circle cx="${x}" cy="${y}" r="${mr}" fill="${p.k === "hotel" ? "#ffffff" : col}" stroke="#0b1d2e" stroke-width="${px * 1.5}"/>`;
+    if (mapDay) m += `<text x="${x}" y="${y + fs * .36}" font-size="${fs}" text-anchor="middle" font-weight="700" fill="#0b1d2e">${mkLabel(mapDay, n)}</text>`;
+    m += `</g>`;
+    markH = m + markH; // 靠前的站点画在上层，出发地不被盖住
     if (stopLabels) { const b = place(x, y, short(p), fs, mr * 1.4, ["r", "l", "br", "tr", "bl", "tl", "b", "t"]); if (b) labelH += txt(b, short(p), fs, "#eaf2f8"); }
   });
   const tier = vb.w > 250 ? 1 : vb.w > 110 ? 2 : 3;
@@ -318,7 +322,9 @@ function renderChips() {
   if (!mapDay) { ml.innerHTML = ""; return; }
   ml.innerHTML = `<ul class="tl">${mapPlaces(mapDay).map((k, n) => {
     const d = T.days.find(x => x.date === mapDay); const it = d.items.find(i => i.p === k && !i.w.startsWith("出发")) || d.items.find(i => i.p === k);
-    return `<li><span class="t">${n + 1}</span><span class="w">${esc(P[k].n)}${it ? `<span class="n">${esc(it.t)}</span>` : `<span class="n">今晚住宿</span>`}</span><button class="nav" data-place="${k}">导航</button></li>`;
+    const isStart = n === 0 && startOf(mapDay) === k;
+    const note = isStart ? (d.sleep === k ? "出发 · 今晚住宿" : "出发") : it ? esc(it.t) : "今晚住宿";
+    return `<li><span class="t">${mkLabel(mapDay, n)}</span><span class="w">${esc(P[k].n)}<span class="n">${note}</span></span><button class="nav" data-place="${k}">导航</button></li>`;
   }).join("")}</ul>`;
 }
 function showMap(day) {
