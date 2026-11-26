@@ -74,3 +74,15 @@ nav#tabs button .ti{font-size:19px;line-height:1.2}
 nav#tabs button.on{color:var(--acc)}
 .muted{color:var(--tx2);font-size:13px}
 .warn{color:var(--warn)}
+
+/* 实时数据 */
+.live{margin:10px 0 0;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.live .lh{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bg2);font-size:13px;color:var(--tx2)}
+.live .lh b{color:var(--tx);font-size:14px}
+.live .lr{display:grid;grid-template-columns:44px 1fr;gap:8px;padding:9px 12px;border-top:1px solid var(--line);font-size:14px}
+.live .lk{color:var(--tx2)}
+.live .lv b{font-weight:600}
+.live .sub{display:block;color:var(--tx2);font-size:12.5px;margin-top:2px}
+.lv .ok{color:var(--acc)} .lv .mid{color:var(--warn)} .lv .hi{color:var(--bad)}
+.livebar{display:flex;justify-content:space-between;align-items:center;color:var(--tx2);font-size:12.5px;margin:2px 4px 6px}
+.livebar button{border:1px solid var(--line);background:var(--bg2);color:var(--acc2);border-radius:8px;padding:3px 9px;font-size:12.5px}

@@ -1,5 +1,5 @@
 // 离线缓存：全部文件预先缓存，之后优先读缓存；有网时后台更新。
-const VERSION = "v2-2026-11-26";
+const VERSION = "v3-2026-11-26";
 const CACHE = "iceland-" + VERSION;
 const FILES = [
   "./", "index.html", "style.css", "app.js", "data.js", "map-shape.js", "manifest.webmanifest",
@@ -18,7 +18,8 @@ self.addEventListener("message", e => { if (e.data === "v" && e.source) e.source
 
 self.addEventListener("fetch", e => {
   const url = new URL(e.request.url);
-  if (e.request.method !== "GET" || url.origin !== location.origin) return; // 外部链接（地图、路况）不拦截
+  if (e.request.method !== "GET" || url.origin !== location.origin) return; // 外部链接不拦截
+  if (url.pathname.endsWith("data/live.json")) return; // 实时数据直接走网络，离线时由页面读取本地保存的上一份
   e.respondWith(
     caches.match(e.request, { ignoreSearch: true }).then(hit => {
       const net = fetch(e.request).then(res => {

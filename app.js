@@ -26,6 +26,43 @@ const store = {
   set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
 };
 
+/* ---------- 实时数据：路况 / 天气 / 极光 ---------- */
+const fmtTime = iso => { const d = new Date(iso); return `${d.getUTCMonth() + 1}/${d.getUTCDate()} ${String(d.getUTCHours()).padStart(2, "0")}:${String(d.getUTCMinutes()).padStart(2, "0")}`; };
+function liveBlock(date) {
+  const L = store.get("ice-live", null); const x = L && L.days && L.days[date];
+  const d = T.days.find(v => v.date === date);
+  const head = `<div class="lh"><b>${fmtDate(date)} ${d ? d.wd : ""}</b><span>${L ? "更新 " + fmtTime(L.updated) : "暂无数据"}</span></div>`;
+  if (!x) return `<div class="live">${head}</div>`;
+  const rows = [];
+  const r = x.road;
+  if (r && r.total) {
+    const cls = r.worstSev >= 4 ? "hi" : r.worstSev >= 2 ? "mid" : "ok";
+    const bad = r.bad.map(b => `${esc(b.n.replace(/^Hringvegur:\s*/, "1号公路 "))}：${esc(b.zh)}`).join("<br>");
+    rows.push(["路况", `<b class="${cls}">${r.worstSev >= 2 ? "最差 " + esc(r.worst) : "全线畅通"}</b><span class="sub">${r.total} 个路段${bad ? "<br>" + bad : ""}</span>`]);
+  } else if (r) rows.push(["路况", `<span class="sub">无匹配路段</span>`]);
+  const w = x.weather;
+  if (w) {
+    const g = w.gust >= 20 ? "hi" : w.gust >= 15 ? "mid" : "ok";
+    const pr = [w.rain >= 0.5 ? `降水 ${w.rain} mm` : "", w.snow >= 0.5 ? `降雪 ${w.snow} cm` : ""].filter(Boolean).join(" · ");
+    rows.push(["天气", `<b>${esc(w.sky)} ${w.tmin}~${w.tmax}°C</b> · 体感 ${w.feel}°C<span class="sub">阵风 <b class="${g}">${w.gust} m/s</b>${pr ? " · " + pr : ""}</span>`]);
+  } else rows.push(["天气", `<span class="sub">超出预报范围</span>`]);
+  const a = x.aurora;
+  if (a) {
+    const cls = a.level >= 3 ? "ok" : a.level === 2 ? "ok" : a.level === 1 ? "mid" : "hi";
+    const parts = [a.cloud != null ? `夜间云量 ${a.cloud}%` : "", a.imo != null ? `活动指数 ${a.imo}/9` : a.kp != null ? `Kp ${a.kp}` : "", a.dark ? `${a.dark} 天黑` : ""].filter(Boolean).join(" · ");
+    rows.push(["极光", `<b class="${cls}">${esc(a.text)}</b><span class="sub">${parts}</span>`]);
+  }
+  return `<div class="live">${head}${rows.map(([k, v]) => `<div class="lr"><span class="lk">${k}</span><span class="lv">${v}</span></div>`).join("")}</div>`;
+}
+let liveBusy = false;
+async function refreshLive() {
+  if (liveBusy || !navigator.onLine) return; liveBusy = true;
+  try {
+    const r = await fetch("data/live.json?t=" + Date.now(), { cache: "no-store" });
+    if (r.ok) { const j = await r.json(); const old = store.get("ice-live", null); if (!old || j.updated !== old.updated) { store.set("ice-live", j); renderToday(); renderPlan(); } }
+  } catch {} finally { liveBusy = false; }
+}
+
 /* ---------- 时间轴 ---------- */
 function timeline(day, live) {
   const { min } = isNow();
@@ -48,20 +85,22 @@ function renderToday() {
   let head = "";
   if (phase === "before") {
     const days = Math.ceil((Date.parse(T.start + "T00:00:00Z") - Date.now()) / 864e5);
-    head = `<div class="card"><div class="muted">距离出发</div><div class="big">${days} 天</div><div class="muted">出发前先把「清单」页里的事做完。下面是第一天的安排。</div></div>`;
+    head = `<div class="card"><div class="muted">距离出发</div><div class="big">${days} 天</div></div>`;
   } else if (phase === "after") {
-    head = `<div class="card"><div class="big">旅途结束</div><div class="muted">下面是最后一天的安排。</div></div>`;
+    head = `<div class="card"><div class="big">旅途结束</div></div>`;
   }
   const sleep = d.sleep ? `<div class="btnrow"><a class="btn" href="${gmaps(P[d.sleep].q)}">导航去今晚住处</a><button class="btn alt" data-goto-map="${d.date}">看今天地图</button></div>` : "";
+  const i2 = phase === "after" ? i : Math.min(i + 1, T.days.length - 1);
+  const liveDates = [...new Set([d.date, T.days[i2].date])];
   $("#v-today").innerHTML = `${head}
+    <div class="card"><h3>路况 · 天气 · 极光</h3>${liveDates.map(liveBlock).join("")}</div>
     <div class="card">
       <h3><span class="pill g">第 ${i + 1} 天</span> ${fmtDate(d.date)} ${d.wd}｜${esc(d.title)}</h3>
       <p class="lead">${esc(d.lead)}</p>${metaHtml(d)}${sleep}
       ${timeline(d, phase === "during")}${tipsHtml(d)}
     </div>
     <div class="card"><h3>出发前检查</h3><ul class="plain">${T.daily.map(x => `<li>${esc(x)}</li>`).join("")}</ul>
-      <div class="btnrow"><a class="btn alt" href="https://umferdin.is/en">路况 road.is</a><a class="btn alt" href="https://en.vedur.is/weather/forecasts/aurora/">极光与云量</a></div>
-      <p class="muted">这两个链接需要网络；其余内容都能离线看。</p></div>`;
+      <div class="btnrow"><a class="btn alt" href="https://umferdin.is/en">路况 road.is</a><a class="btn alt" href="https://en.vedur.is/weather/forecasts/aurora/">极光与云量</a></div></div>`;
   $("#topSub").textContent = phase === "during" ? `今天 ${fmtDate(d.date)} ${d.wd} · 冰岛时间 ${new Date().toISOString().slice(11, 16)}` : `${fmtDate(T.start)}–${fmtDate(T.end)} · 三人 · RAV4`;
 }
 
@@ -72,6 +111,7 @@ function renderPlan() {
     <details class="day" ${phase === "during" && k === i ? "open" : ""}>
       <summary><span class="d">${fmtDate(d.date)} ${d.wd}</span>${esc(d.title)}</summary>
       <div class="body"><p class="lead">${esc(d.lead)}</p>${metaHtml(d)}
+        ${liveBlock(d.date)}
         <div class="btnrow"><button class="btn alt" data-goto-map="${d.date}">在地图上看这天</button></div>
         ${timeline(d, false)}${tipsHtml(d)}</div>
     </details>`).join("");
@@ -82,7 +122,7 @@ function renderCheck() {
   const st = store.get("ice-check", {});
   const list = (title, arr, note) => `<div class="card"><h3>${title}</h3>${note ? `<p class="muted">${note}</p>` : ""}${arr.map(x =>
     `<label class="ck ${st[x.id] ? "on" : ""}"><input type="checkbox" data-ck="${x.id}" ${st[x.id] ? "checked" : ""}><span>${esc(x.t)}</span></label>`).join("")}</div>`;
-  $("#v-check").innerHTML = list("要订的", T.bookings, "订好就勾上，勾选只保存在这台手机上。") + list("出发前", T.before) + list("行李", T.packing);
+  $("#v-check").innerHTML = list("要订的", T.bookings) + list("出发前", T.before) + list("行李", T.packing);
 }
 
 /* ---------- 须知 ---------- */
@@ -141,7 +181,6 @@ function renderInfo() {
 
   <div class="card"><h3>离线状态</h3>
     <p class="muted" id="swState">检查中…</p>
-    <p class="muted">导航用 Google 地图：出发前在 Google 地图里下载整条路线的离线地图，断网也能导航。</p>
     <div class="btnrow"><button class="btn alt" id="updBtn">有网时检查更新</button></div></div>`;
   swStatus();
   $("#updBtn").onclick = async () => {
@@ -152,11 +191,11 @@ function renderInfo() {
 }
 async function swStatus() {
   const el = $("#swState"); if (!el) return;
-  if (!("serviceWorker" in navigator)) { el.textContent = "这个浏览器不支持离线缓存。"; return; }
+  if (!("serviceWorker" in navigator)) { el.textContent = "不支持离线"; return; }
   const r = await navigator.serviceWorker.getRegistration();
   let persist = "";
-  try { if (navigator.storage && navigator.storage.persisted) persist = (await navigator.storage.persisted()) ? "，已申请长期保存" : ""; } catch {}
-  el.textContent = r && r.active ? `离线缓存已就绪（${window.APP_VERSION || ""}）${persist}。断网也能打开。` : "第一次打开，正在下载离线内容，稍等几秒后重开即可离线使用。";
+  try { if (navigator.storage && navigator.storage.persisted) persist = (await navigator.storage.persisted()) ? " · 长期保存" : ""; } catch {}
+  el.textContent = r && r.active ? `离线可用 · ${window.APP_VERSION || ""}${persist}` : "离线内容下载中";
 }
 
 /* ---------- 地图 ---------- */
@@ -272,8 +311,7 @@ function openPlace(k) {
   const uses = []; T.days.forEach(d => d.items.forEach(it => { if (it.p === k) uses.push(`${fmtDate(d.date)} ${it.t} ${it.w}`); }));
   $("#sheetCard").innerHTML = `<button class="x" id="sx">×</button><h3>${esc(p.n)}</h3>
     ${uses.length ? `<ul class="plain">${uses.map(u => `<li>${esc(u)}</li>`).join("")}</ul>` : ""}
-    <div class="btnrow"><a class="btn" href="${gmaps(p.q)}">Google 地图导航</a><a class="btn alt" href="${amaps(p.q)}">苹果地图</a></div>
-    <p class="muted">Google 地图提前下载了离线地图，断网也能导航。</p>`;
+    <div class="btnrow"><a class="btn" href="${gmaps(p.q)}">Google 地图导航</a><a class="btn alt" href="${amaps(p.q)}">苹果地图</a></div>`;
   $("#sheet").classList.add("show"); $("#sx").onclick = closeSheet;
 }
 function closeSheet() { $("#sheet").classList.remove("show"); }
@@ -303,6 +341,10 @@ document.addEventListener("change", e => {
 /* ---------- 启动 ---------- */
 renderToday(); renderPlan(); renderCheck(); renderInfo(); renderChips();
 setInterval(() => { if ($("#v-today").classList.contains("active")) renderToday(); }, 60000);
+refreshLive();
+setInterval(refreshLive, 20 * 60000);
+window.addEventListener("online", refreshLive);
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") refreshLive(); });
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("sw.js").then(() => setTimeout(swStatus, 1500)).catch(() => {});
   navigator.serviceWorker.addEventListener("message", e => { if (e.data && e.data.v) { window.APP_VERSION = e.data.v; swStatus(); } });
