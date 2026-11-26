@@ -36,7 +36,7 @@ window.TRIP = {
     vikchurch:  { n: "Vík 小教堂观景点", q: "Víkurkirkja", lat: 63.420, lon: -19.012, k: "sight" },
     skylagoon:  { n: "Sky Lagoon", q: "Sky Lagoon, Kópavogur", lat: 64.116, lon: -21.945, k: "sight" },
     grand:      { n: "Hotel Reykjavík Grand", q: "Hotel Reykjavík Grand, Sigtún 38", lat: 64.143, lon: -21.896, k: "hotel" },
-    sjavar:     { n: "Sjávargrillið（生日晚餐）", q: "Sjávargrillið, Skólavörðustígur 14, Reykjavík", lat: 64.144, lon: -21.929, k: "food" },
+    sjavar:     { n: "Sjávargrillið 海鲜烧烤", q: "Sjávargrillið, Skólavörðustígur 14, Reykjavík", lat: 64.144, lon: -21.929, k: "food" },
     hallgrims:  { n: "Hallgrímskirkja 大教堂", q: "Hallgrímskirkja", lat: 64.142, lon: -21.927, k: "sight" },
     isf:        { n: "Icelandic Street Food", q: "Icelandic Street Food, Reykjavík", lat: 64.146, lon: -21.935, k: "food" },
     bbp:        { n: "Bæjarins Beztu Pylsur 热狗", q: "Bæjarins Beztu Pylsur", lat: 64.148, lon: -21.940, k: "food" },
@@ -157,8 +157,8 @@ window.TRIP = {
       ]
     },
     {
-      date: "2026-12-06", wd: "周日", title: "女朋友生日：黑沙滩 → Sky Lagoon → 生日晚餐",
-      lead: "睡到自然醒。上午黑沙滩，午后开到雷克雅未克一带，在 Sky Lagoon 看海上日落，晚上生日大餐。要喝酒就把车停酒店，打车去。",
+      date: "2026-12-06", wd: "周日", title: "黑沙滩 → Sky Lagoon → 雷克雅未克",
+      lead: "睡到自然醒。上午黑沙滩，午后开到雷克雅未克一带，在 Sky Lagoon 看海上日落。晚餐要喝酒就把车停酒店，打车去。",
       sleep: "grand", drive: "约 3 小时", sun: "日出约 10:55 · 日落约 15:40",
       items: [
         { t: "09:00", w: "早餐、退房" },
@@ -170,12 +170,12 @@ window.TRIP = {
         { t: "15:30", w: "Sky Lagoon：海边无边温泉 + 7 步浴疗（到 18:00）", n: "周日 11:00–22:00；15:40 前后日落", p: "skylagoon" },
         { t: "18:20", w: "入住 Hotel Reykjavík Grand，换衣服", n: "车停酒店", p: "grand" },
         { t: "19:15", w: "打车去餐厅", n: "约 10 分钟" },
-        { t: "19:30", w: "生日晚餐：Sjávargrillið", n: "彩虹街上；周日约 21:30–22:00 打烊，别晚于 19:30 入座", p: "sjavar" },
+        { t: "19:30", w: "晚餐：Sjávargrillið", n: "彩虹街上；周日约 21:30–22:00 打烊，别晚于 19:30 入座", p: "sjavar" },
         { t: "21:30", w: "饭后沿彩虹街走到大教堂前，有极光就在教堂前拍", p: "hallgrims" }
       ],
       tips: [
         "黑沙滩：黄灯时不进黄色区域；红灯时海滩关闭，只在观景台看。离海水至少 30 米，永远不要背对大海拍照。2026 年 2 月玄武岩柱塌了一部分，红灯时岩柱和山洞都不开放。",
-        "Sjávargrillið：2010 年冰岛年度大厨开的，明火烤当天捕的鱼、龙虾和冰岛羊肉。订位时写明是生日，问能不能上带蜡烛的甜品。备选：Caruso（Austurstræti 22）。"
+        "Sjávargrillið：2010 年冰岛年度大厨开的，明火烤当天捕的鱼、龙虾和冰岛羊肉。备选：Caruso（Austurstræti 22）。"
       ]
     },
     {
@@ -235,10 +235,10 @@ window.TRIP = {
   ],
 
   bookings: [
-    { id: "b1", t: "12/3 Friðheimar 午餐 14:00，3 人" },
+    { id: "b1", t: "12/3 Friðheimar 午餐 14:00" },
     { id: "b2", t: "12/3 晚餐 Tryggvaskáli 19:00" },
     { id: "b3", t: "12/6 Sky Lagoon 15:30 入场" },
-    { id: "b4", t: "12/6 生日晚餐 Sjávargrillið 19:30（写明是生日）" },
+    { id: "b4", t: "12/6 晚餐 Sjávargrillið 19:30" },
     { id: "b5", t: "Blue Car 在线 check-in（取车前 24 小时以上）" }
   ],
 

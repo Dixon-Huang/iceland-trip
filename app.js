@@ -101,7 +101,7 @@ function renderToday() {
     </div>
     <div class="card"><h3>出发前检查</h3><ul class="plain">${T.daily.map(x => `<li>${esc(x)}</li>`).join("")}</ul>
       <div class="btnrow"><a class="btn alt" href="https://umferdin.is/en">路况 road.is</a><a class="btn alt" href="https://en.vedur.is/weather/forecasts/aurora/">极光与云量</a></div></div>`;
-  $("#topSub").textContent = phase === "during" ? `今天 ${fmtDate(d.date)} ${d.wd} · 冰岛时间 ${new Date().toISOString().slice(11, 16)}` : `${fmtDate(T.start)}–${fmtDate(T.end)} · 三人 · RAV4`;
+  $("#topSub").textContent = phase === "during" ? `今天 ${fmtDate(d.date)} ${d.wd} · 冰岛时间 ${new Date().toISOString().slice(11, 16)}` : `${fmtDate(T.start)}–${fmtDate(T.end)}`;
 }
 
 /* ---------- 行程 ---------- */
@@ -139,7 +139,7 @@ function renderInfo() {
     <table class="kv">
       <tr><td>去程</td><td>12/2 FI533 慕尼黑 13:00 → KEF 16:00</td></tr>
       <tr><td>回程</td><td>12/9 FI532 KEF 07:20 → 慕尼黑 12:05（直飞）</td></tr>
-      <tr><td>租车</td><td>Blue Car，RAV4；取还都在机场办公室 Blikavöllur 3。冬季办公室 05:00–02:00；18:00 前有接驳车，步行 3–4 分钟</td></tr>
+      <tr><td>租车</td><td>Blue Car，机场办公室 Blikavöllur 3；冬季 05:00–02:00</td></tr>
       ${hotels.map(x => `<tr><td>${fmtDate(x.from)}${x.to !== x.from ? "–" + fmtDate(x.to) : ""}</td><td>${esc(x.h.n)} <button class="nav" data-place="${Object.keys(P).find(k => P[k] === x.h)}">导航</button></td></tr>`).join("")}
       <tr><td>冰洞</td><td>12/5 Glacier Adventure「Blue Ice Cave Adventure」09:30–15:30，2 位成人，Hali 营地集合</td></tr>
     </table></div>
