@@ -346,7 +346,11 @@ setInterval(refreshLive, 20 * 60000);
 window.addEventListener("online", refreshLive);
 document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") refreshLive(); });
 if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("sw.js").then(() => setTimeout(swStatus, 1500)).catch(() => {});
+  const hadController = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.register("sw.js", { updateViaCache: "none" }).then(r => { r.update(); setTimeout(swStatus, 1500); }).catch(() => {});
+  // 新版本装好后自动刷新一次
+  let reloaded = false;
+  navigator.serviceWorker.addEventListener("controllerchange", () => { if (hadController && !reloaded) { reloaded = true; location.reload(); } });
   navigator.serviceWorker.addEventListener("message", e => { if (e.data && e.data.v) { window.APP_VERSION = e.data.v; swStatus(); } });
   navigator.serviceWorker.ready.then(r => r.active && r.active.postMessage("v"));
 }

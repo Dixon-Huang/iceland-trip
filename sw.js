@@ -1,5 +1,5 @@
 // 离线缓存：全部文件预先缓存，之后优先读缓存；有网时后台更新。
-const VERSION = "v5-2026-11-26";
+const VERSION = "v6-2026-11-26";
 const CACHE = "iceland-" + VERSION;
 const FILES = [
   "./", "index.html", "style.css", "app.js", "data.js", "map-shape.js", "manifest.webmanifest",
@@ -7,7 +7,8 @@ const FILES = [
 ];
 
 self.addEventListener("install", e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));
+  // cache: "reload" 绕过浏览器缓存，确保拿到服务器上的最新文件
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES.map(f => new Request(f, { cache: "reload" })))).then(() => self.skipWaiting()));
 });
 
 self.addEventListener("activate", e => {
