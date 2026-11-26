@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>冰岛行程</title>
+<meta name="theme-color" content="#0b1d2e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="冰岛行程">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header id="top">
+  <div class="top-title" id="topTitle">冰岛行程</div>
+  <div class="top-sub" id="topSub"></div>
+</header>
+
+<main>
+  <section id="v-today" class="view active"></section>
+  <section id="v-plan" class="view"></section>
+  <section id="v-map" class="view">
+    <div class="chips" id="dayChips"></div>
+    <div class="map-wrap" id="mapWrap">
+      <svg id="map" xmlns="http://www.w3.org/2000/svg"></svg>
+      <div class="map-btns">
+        <button id="zIn" aria-label="放大">＋</button>
+        <button id="zOut" aria-label="缩小">－</button>
+        <button id="zFit" aria-label="适配">⤢</button>
+        <button id="gps" aria-label="定位">◎</button>
+      </div>
+      <div class="map-note">示意图：海岸线为真实数据，路线为沿主路的折线，位置为近似。双指缩放，放大后显示地名。</div>
+    </div>
+    <div class="card" id="mapList"></div>
+  </section>
+  <section id="v-check" class="view"></section>
+  <section id="v-info" class="view"></section>
+</main>
+
+<div id="sheet" class="sheet" aria-hidden="true">
+  <div class="sheet-card" id="sheetCard"></div>
+</div>
+
+<nav id="tabs">
+  <button data-v="today" class="on"><span class="ti">☀</span>今天</button>
+  <button data-v="plan"><span class="ti">☰</span>行程</button>
+  <button data-v="map"><span class="ti">⌖</span>地图</button>
+  <button data-v="check"><span class="ti">✓</span>清单</button>
+  <button data-v="info"><span class="ti">!</span>须知</button>
+</nav>
+
+<script src="data.js"></script>
+<script src="map-shape.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
