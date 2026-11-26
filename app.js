@@ -83,7 +83,14 @@ function timeline(day, live) {
   }).join("")}</ul>`;
 }
 const tipsHtml = d => d.tips && d.tips.length ? `<div class="tips">${d.tips.map(t => `<p>${esc(t)}</p>`).join("")}</div>` : "";
-const metaHtml = d => `<div class="meta">${d.drive ? `<span class="pill">开车 ${esc(d.drive)}</span>` : ""}${d.sun ? `<span class="pill">${esc(d.sun)}</span>` : ""}${d.sleep ? `<span class="pill">住 ${esc(P[d.sleep].n)}</span>` : ""}</div>`;
+const metaHtml = d => `<div class="meta">${d.drive ? `<span class="pill">开车 ${esc(d.drive)}</span>` : ""}${d.sun ? `<span class="pill">${esc(d.sun)}</span>` : ""}</div>`;
+
+/* ---------- 三餐与住宿 ---------- */
+function mealsBlock(d) {
+  const rows = (d.meals || []).map(m => [m.k, `${m.t ? `<span class="t">${esc(m.t)}</span> ` : ""}${esc(m.w)}`, m.p]);
+  rows.push(["住宿", d.sleep ? esc(P[d.sleep].n) : "—", d.sleep]);
+  return `<table class="kv meals">${rows.map(([k, v, p]) => `<tr><td>${k}</td><td>${v}</td><td>${p ? `<button class="nav" data-place="${p}">导航</button>` : ""}</td></tr>`).join("")}</table>`;
+}
 
 /* ---------- 今天 ---------- */
 function renderToday() {
@@ -104,6 +111,7 @@ function renderToday() {
     <div class="card">
       <h3><span class="pill g">第 ${i + 1} 天</span> ${fmtDate(d.date)} ${d.wd}｜${esc(d.title)}</h3>
       <p class="lead">${esc(d.lead)}</p>${metaHtml(d)}${sleep}
+      ${mealsBlock(d)}
       ${timeline(d, phase === "during")}${tipsHtml(d)}
     </div>
     <div class="card"><h3>出发前检查</h3><ul class="plain">${T.daily.map(x => `<li>${esc(x)}</li>`).join("")}</ul>
@@ -118,6 +126,7 @@ function renderPlan() {
     <details class="day" ${phase === "during" && k === i ? "open" : ""}>
       <summary><span class="d">${fmtDate(d.date)} ${d.wd}</span>${esc(d.title)}</summary>
       <div class="body"><p class="lead">${esc(d.lead)}</p>${metaHtml(d)}
+        ${mealsBlock(d)}
         ${liveBlock(d.date)}
         <div class="btnrow"><button class="btn alt" data-goto-map="${d.date}">在地图上看这天</button></div>
         ${timeline(d, false)}${tipsHtml(d)}</div>

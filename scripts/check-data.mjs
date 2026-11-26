@@ -18,6 +18,7 @@ else {
     const where = `第 ${i + 1} 天（${d.date || "无日期"}）`;
     if (!/^\d{4}-\d{2}-\d{2}$/.test(d.date || "")) errs.push(`${where}：date 要写成 2026-12-02 这种格式`);
     if (d.sleep && !T.places[d.sleep]) errs.push(`${where}：sleep 用的地点 "${d.sleep}" 在 places 里不存在`);
+    (d.meals || []).forEach(m => { if (m.p && !T.places[m.p]) errs.push(`${where} ${m.k}：地点 "${m.p}" 在 places 里不存在`); });
     (d.items || []).forEach((it, k) => {
       if (!/^\d{1,2}:\d{2}/.test(it.t || "")) errs.push(`${where} 第 ${k + 1} 项：时间 t 要写成 09:30 这种格式`);
       if (!it.w) errs.push(`${where} 第 ${k + 1} 项：缺少内容 w`);

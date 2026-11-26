@@ -70,6 +70,7 @@ window.TRIP = {
     {
       date: "2026-12-02", wd: "周三", title: "慕尼黑 → KEF → Selfoss",
       lead: "落地时天已经黑了，今天只做三件事：取车、开到 Selfoss、采购并吃晚饭。",
+      meals: [{ k: "早餐", w: "出发前自理" }, { k: "午餐", w: "慕尼黑机场或飞机上" }, { k: "晚餐", t: "19:45", w: "Kaffi Krús（Selfoss）", p: "kaffikrus" }],
       sleep: "selfoss", drive: "约 1.5 小时（夜路）", sun: "日出约 11:00 · 日落约 15:45",
       items: [
         { t: "10:45", w: "到慕尼黑机场 T1", n: "德国时间，提前 2 小时" },
@@ -88,6 +89,7 @@ window.TRIP = {
     {
       date: "2026-12-03", wd: "周四", title: "黄金圈环线",
       lead: "天黑出发，天亮时刚好到 Þingvellir，午餐放在最后一个景点之后，天黑前回到 Selfoss。",
+      meals: [{ k: "早餐", t: "08:30", w: "Selfoss" }, { k: "午餐", t: "14:00", w: "Friðheimar 番茄温室餐厅（需订位）", p: "fridheimar" }, { k: "晚餐", t: "19:00", w: "Tryggvaskáli（建议订位）", p: "tryggva" }],
       sleep: "selfoss", drive: "约 3.5 小时", sun: "日出约 11:00 · 日落约 15:40",
       items: [
         { t: "08:30", w: "早餐" },
@@ -108,6 +110,7 @@ window.TRIP = {
     {
       date: "2026-12-04", wd: "周五", title: "Selfoss → 南岸 → Vík",
       lead: "沿 1 号公路往东：两个瀑布、一个冰川、Dyrhólaey 海岬，天黑前到 Vík。晚上早睡，明天 05:30 起。",
+      meals: [{ k: "早餐", t: "08:30", w: "Selfoss" }, { k: "午餐", t: "12:30", w: "车上吃，Krónan 提前买" }, { k: "晚餐", t: "18:00", w: "Black Crust Pizzeria（Vík）", p: "blackcrust" }],
       sleep: "kria", drive: "约 2.5 小时", sun: "日出约 10:55 · 日落约 15:30",
       items: [
         { t: "08:30", w: "早餐、退房" },
@@ -130,6 +133,7 @@ window.TRIP = {
     {
       date: "2026-12-05", wd: "周六", title: "冰洞日",
       lead: "冰洞团 09:30–15:30，Hali 集合。不进洞的在冰河湖一带，15:30 前补觉一小时。往返都是夜路。",
+      meals: [{ k: "早餐", t: "05:30", w: "自带，路上吃；不进洞的 09:30 在 Þórbergssetur", p: "thorberg" }, { k: "午餐", w: "冰洞：自带；不进洞：13:30 Þórbergssetur", p: "thorberg" }, { k: "晚餐", t: "19:00", w: "Smiðjan Brugghús（Vík）", p: "smidjan" }],
       sleep: "kria", drive: "约 6–7 小时（往返约 400 公里）", sun: "日出约 10:45 · 日落约 15:15",
       items: [
         { t: "05:30", w: "起床，带热水和早餐；看 road.is、vedur.is" },
@@ -159,6 +163,7 @@ window.TRIP = {
     {
       date: "2026-12-06", wd: "周日", title: "黑沙滩 → Sky Lagoon → 雷克雅未克",
       lead: "睡到自然醒。上午黑沙滩，午后开到雷克雅未克一带，在 Sky Lagoon 看海上日落。晚餐要喝酒就把车停酒店，打车去。",
+      meals: [{ k: "早餐", t: "09:00", w: "Vík" }, { k: "午餐", t: "13:30", w: "Selfoss：Tommi's Burger Joint 或 Kaffi Krús", p: "kaffikrus" }, { k: "晚餐", t: "19:30", w: "Sjávargrillið（需订位）", p: "sjavar" }],
       sleep: "grand", drive: "约 3 小时", sun: "日出约 10:55 · 日落约 15:40",
       items: [
         { t: "09:00", w: "早餐、退房" },
@@ -181,6 +186,7 @@ window.TRIP = {
     {
       date: "2026-12-07", wd: "周一", title: "雷克雅未克市区",
       lead: "开车到市中心停好，之后全程步行，从大教堂一路走到海边，日落时到太阳航海者。",
+      meals: [{ k: "早餐", t: "09:30", w: "雷克雅未克" }, { k: "午餐", t: "12:30", w: "Icelandic Street Food", p: "isf" }, { k: "晚餐", t: "19:00", w: "Messinn（备选 Caruso）", p: "messinn" }],
       sleep: "grand", drive: "很少", sun: "日出约 11:05 · 日落约 15:40",
       items: [
         { t: "09:30", w: "早餐" },
@@ -201,6 +207,7 @@ window.TRIP = {
     {
       date: "2026-12-08", wd: "周二", title: "Reykjanes 半岛 → 17:30 还车",
       lead: "往西南绕半岛一圈，终点就是机场。截至 11 月中旬半岛上没有火山喷发，蓝湖和 Grindavík 开放；但地下岩浆还在积累，几条路可能临时封闭，早上先看 road.is 和 vedur.is。",
+      meals: [{ k: "早餐", t: "09:00", w: "雷克雅未克" }, { k: "午餐", t: "14:45", w: "Reykjanesbær" }, { k: "晚餐", t: "18:30", w: "Aurora Hotel", p: "aurora" }],
       sleep: "aurora", drive: "约 2.5 小时", sun: "日出约 11:05 · 日落约 15:40",
       items: [
         { t: "09:00", w: "早餐" },
@@ -223,6 +230,7 @@ window.TRIP = {
     {
       date: "2026-12-09", wd: "周三", title: "FI532 直飞慕尼黑",
       lead: "早起，走路去航站楼。",
+      meals: [{ k: "早餐", t: "05:20", w: "机场或飞机上", p: "kef" }],
       sleep: null, drive: "0", sun: "",
       items: [
         { t: "04:45", w: "起床" },

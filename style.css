@@ -86,3 +86,5 @@ nav#tabs button.on{color:var(--acc)}
 .lv .ok{color:var(--acc)} .lv .mid{color:var(--warn)} .lv .hi{color:var(--bad)}
 .livebar{display:flex;justify-content:space-between;align-items:center;color:var(--tx2);font-size:12.5px;margin:2px 4px 6px}
 .livebar button{border:1px solid var(--line);background:var(--bg2);color:var(--acc2);border-radius:8px;padding:3px 9px;font-size:12.5px}
+
+.meals{margin:10px 0 4px}.meals td{vertical-align:middle}.meals td:last-child{text-align:right;width:1%}.meals .t{color:var(--acc2);font-variant-numeric:tabular-nums}
