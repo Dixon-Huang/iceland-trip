@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#040d1a"/>
+      <stop offset="0.45" stop-color="#0a2238"/>
+      <stop offset="0.68" stop-color="#14405e"/>
+    </linearGradient>
+    <linearGradient id="au1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7dffd0" stop-opacity="0"/>
+      <stop offset="0.45" stop-color="#5ef0b4" stop-opacity="0.55"/>
+      <stop offset="0.85" stop-color="#3fe39c" stop-opacity="0.95"/>
+      <stop offset="1" stop-color="#b8ffe6" stop-opacity="0.9"/>
+    </linearGradient>
+    <linearGradient id="au2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#9a7dff" stop-opacity="0"/>
+      <stop offset="0.6" stop-color="#6fc8ff" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#7cf0d0" stop-opacity="0.7"/>
+    </linearGradient>
+    <linearGradient id="mtn" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0b1e30"/>
+      <stop offset="1" stop-color="#06111d"/>
+    </linearGradient>
+    <linearGradient id="water" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0f3550"/>
+      <stop offset="1" stop-color="#05101c"/>
+    </linearGradient>
+    <linearGradient id="snow" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#bfe3f5"/>
+    </linearGradient>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="14"/></filter>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="5"/></filter>
+    <filter id="haze" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="40"/></filter>
+    <clipPath id="top"><rect width="1024" height="700"/></clipPath>
+  </defs>
+
+  <rect width="1024" height="1024" fill="url(#sky)"/>
+
+  <!-- 星星 -->
+  <g fill="#fff">
+    <circle cx="140" cy="120" r="3" opacity=".9"/><circle cx="300" cy="80" r="2" opacity=".7"/>
+    <circle cx="520" cy="60" r="2.5" opacity=".8"/><circle cx="760" cy="110" r="3" opacity=".9"/>
+    <circle cx="890" cy="70" r="2" opacity=".6"/><circle cx="640" cy="180" r="2" opacity=".6"/>
+    <circle cx="90" cy="260" r="2" opacity=".5"/><circle cx="940" cy="230" r="2.5" opacity=".7"/>
+    <circle cx="410" cy="150" r="1.8" opacity=".6"/>
+  </g>
+
+  <!-- 极光：一条后层（偏蓝紫）+ 一条主帘（绿） -->
+  <g clip-path="url(#top)">
+    <path d="M-60 430 C 160 300, 330 420, 520 300 S 860 180, 1090 260 L 1090 120 C 860 40, 640 170, 500 160 S 140 150, -60 260 Z" fill="url(#au2)" filter="url(#soft)" opacity=".8"/>
+    <path d="M-60 520 C 150 380, 320 520, 520 400 S 850 260, 1090 330 L 1090 150 C 870 90, 660 230, 520 220 S 150 230, -60 330 Z" fill="url(#au1)" filter="url(#soft)"/>
+    <path d="M-60 520 C 150 380, 320 520, 520 400 S 850 260, 1090 330 L 1090 260 C 870 200, 660 330, 520 320 S 150 330, -60 430 Z" fill="#b8ffe6" opacity=".35" filter="url(#glow)"/>
+    <!-- 帘幕竖纹 -->
+    <g stroke="#c9ffeb" stroke-linecap="round" filter="url(#glow)" opacity=".22">
+      <path d="M180 470 L 200 300" stroke-width="10"/><path d="M290 455 L 300 300" stroke-width="7"/>
+      <path d="M430 430 L 455 270" stroke-width="9"/><path d="M590 370 L 610 220" stroke-width="8"/>
+      <path d="M720 320 L 745 175" stroke-width="10"/><path d="M860 300 L 880 170" stroke-width="7"/>
+    </g>
+    <!-- 地平线辉光 -->
+    <ellipse cx="512" cy="660" rx="520" ry="120" fill="#2fbf8f" opacity=".18" filter="url(#haze)"/>
+  </g>
+
+  <!-- 远山 -->
+  <path d="M0 640 L120 600 L230 625 L340 590 L470 630 L600 600 L760 628 L880 596 L1024 620 L1024 700 L0 700 Z" fill="#0d2a40"/>
+
+  <!-- Kirkjufell 式主峰 --><g transform="translate(540 700) scale(1.18) translate(-540 -700)">
+  <path d="M250 700 L 410 520 Q 470 450 520 405 Q 560 372 600 410 Q 650 455 700 530 L 830 700 Z" fill="url(#mtn)"/>
+  <!-- 山顶积雪与侧光 -->
+  <path d="M520 405 Q 560 372 600 410 Q 618 428 632 446 Q 600 440 585 458 Q 566 432 548 450 Q 530 432 505 440 Q 512 420 520 405 Z" fill="url(#snow)" opacity=".95"/>
+  <path d="M600 410 Q 650 455 700 530 L 690 534 Q 650 480 612 440 Z" fill="#9fd2ea" opacity=".35"/>
+  <!-- 山体层理 -->
+  <g stroke="#1d3d57" stroke-width="5" fill="none" opacity=".8">
+    <path d="M430 530 Q 520 510 650 525"/><path d="M380 585 Q 520 565 700 585"/>
+  </g>
+
+  <!-- 极光边缘光 -->
+  <path d="M250 700 L 410 520 Q 470 450 520 405" fill="none" stroke="#5ef0b4" stroke-width="6" opacity=".55" filter="url(#glow)"/>
+  <path d="M600 410 Q 650 455 700 530 L 830 700" fill="none" stroke="#7cc4ff" stroke-width="4" opacity=".35" filter="url(#glow)"/>
+  </g>
+
+  <!-- 水面与倒影 -->
+  <rect y="700" width="1024" height="324" fill="url(#water)"/>
+  <g opacity=".35" transform="translate(0 1400) scale(1 -1) translate(540 700) scale(1.18) translate(-540 -700)">
+    <path d="M250 700 L 410 520 Q 470 450 520 405 Q 560 372 600 410 Q 650 455 700 530 L 830 700 Z" fill="#06111d"/>
+  </g>
+  <g opacity=".16" filter="url(#soft)">
+    <path d="M-60 740 C 150 800, 320 740, 520 790 S 850 830, 1090 800 L 1090 720 C 870 710, 660 730, 520 725 S 150 715, -60 715 Z" fill="#3fe39c"/>
+  </g>
+  <!-- 水面高光 -->
+  <g stroke="#bfe9ff" stroke-linecap="round" opacity=".35">
+    <path d="M330 760 L 450 760" stroke-width="4"/><path d="M560 790 L 720 790" stroke-width="4"/>
+    <path d="M240 830 L 330 830" stroke-width="3"/><path d="M640 860 L 760 860" stroke-width="3"/>
+  </g>
+  <rect y="698" width="1024" height="4" fill="#8fd7ff" opacity=".25"/>
+</svg>
