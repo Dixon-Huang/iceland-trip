@@ -219,6 +219,17 @@ const proj = (lat, lon) => [(lon - S.LON0) * S.C * S.K, (S.LAT0 - lat) * S.K];
 const svg = $("#map");
 let vb = { x: 0, y: 0, w: S.W, h: S.H }, mapDay = null, gpsPos = null, gpsWatch = null;
 
+// 底图地名：[名称, 纬度, 经度, 类型, 显示级别(1=始终, 2=放大, 3=再放大)]
+const GEO = [
+  ["Reykjavík", 64.147, -21.94, "town", 1], ["Akureyri", 65.68, -18.1, "town", 1], ["Höfn", 64.25, -15.2, "town", 1],
+  ["Vík", 63.42, -19.0, "town", 1], ["Egilsstaðir", 65.26, -14.4, "town", 1], ["Ísafjörður", 66.07, -23.13, "town", 1],
+  ["Vatnajökull", 64.42, -16.8, "ice", 1],
+  ["Selfoss", 63.933, -21.0, "town", 1], ["Keflavík", 64.0, -22.56, "town", 1], ["Jökulsárlón", 64.05, -16.18, "town", 1], ["Kirkjubæjarklaustur", 63.79, -18.05, "town", 2],
+  ["Mýrdalsjökull", 63.65, -19.1, "ice", 2], ["Langjökull", 64.75, -20.2, "ice", 2], ["Hofsjökull", 64.8, -18.8, "ice", 2], ["Borgarnes", 64.54, -21.92, "town", 2],
+  ["Hella", 63.835, -20.4, "town", 3], ["Hvolsvöllur", 63.75, -20.23, "town", 3], ["Hveragerði", 64.0, -21.19, "town", 3],
+  ["Grindavík", 63.84, -22.43, "town", 3], ["Eyjafjallajökull", 63.62, -19.62, "ice", 3], ["Skaftafell", 64.016, -16.966, "town", 3],
+  ["Laugarvatn", 64.215, -20.73, "town", 3], ["Þingvallavatn", 64.18, -21.15, "ice", 3], ["Öræfajökull", 64.0, -16.65, "ice", 3], ["Flúðir", 64.13, -20.33, "town", 3]
+];
 function mapPlaces(day) {
   if (!day) { const seen = new Set(); return Object.keys(P).filter(k => !seen.has(k) && seen.add(k)); }
   const d = T.days.find(x => x.date === day); const out = [];
@@ -237,7 +248,9 @@ function fitTo(day) {
   const box = svg.getBoundingClientRect(); const ar = (box.width || 360) / (box.height || 500);
   let w = x1 - x0, h = y1 - y0;
   if (w / h > ar) { const nh = w / ar; y0 -= (nh - h) / 2; h = nh; } else { const nw = h * ar; x0 -= (nw - w) / 2; w = nw; }
-  vb = { x: x0, y: y0, w, h };
+  // 右侧给缩放按钮留出位置
+  const f = (box.width || 360) / Math.max(200, (box.width || 360) - 60);
+  vb = { x: x0, y: y0 - h * (f - 1) / 2, w: w * f, h: h * f };
 }
 function drawMap() {
   const box = svg.getBoundingClientRect(); const px = vb.w / (box.width || 360); // 每个屏幕像素对应的地图单位
@@ -249,18 +262,48 @@ function drawMap() {
     const ci = T.days.findIndex(x => x.date === dd); const pts = (T.routes[dd] || []).map(([a, b]) => proj(a, b));
     if (pts.length > 1) h += `<polyline points="${pts.map(p => p.join(",")).join(" ")}" fill="none" stroke="${DAY_COLORS[ci]}" stroke-width="${sw}" stroke-linejoin="round" stroke-linecap="round" opacity=".9"/>`;
   });
+  // ---- 标注：先放地点名，再放城镇和冰川；互相避让，放不下就不显示 ----
+  const boxes = [{ x: vb.x + vb.w - 56 * px, y: vb.y, w: 56 * px, h: 200 * px }]; // 缩放按钮区域不放标注
+  const hit = b => boxes.some(o => b.x < o.x + o.w && b.x + b.w > o.x && b.y < o.y + o.h && b.y + b.h > o.y);
+  const tw = (t, f) => [...t].reduce((s, ch) => s + (ch.charCodeAt(0) > 0x2e7f ? 1 : 0.58), 0) * f;
+  const place = (x, y, t, f, off, order) => {
+    const w = tw(t, f), hh = f * 1.3;
+    const c = { r: [x + off, y - hh / 2], l: [x - off - w, y - hh / 2], t: [x - w / 2, y - off - hh], b: [x - w / 2, y + off], c: [x - w / 2, y - hh / 2],
+      br: [x + off * .8, y + off * .8], tr: [x + off * .8, y - off * .8 - hh], bl: [x - off * .8 - w, y + off * .8], tl: [x - off * .8 - w, y - off * .8 - hh] };
+    for (const k of order) { const b = { x: c[k][0], y: c[k][1], w, h: hh }; if (b.x < vb.x || b.x + w > vb.x + vb.w || b.y < vb.y || b.y + hh > vb.y + vb.h) continue; if (!hit(b)) { boxes.push(b); return b; } }
+    return null;
+  };
+  const txt = (b, t, f, fill, extra = "") => `<text x="${b.x}" y="${b.y + b.h * .76}" font-size="${f}" fill="${fill}" stroke="#0b1d2e" stroke-width="${px * 3}" paint-order="stroke" ${extra}>${esc(t)}</text>`;
+  const short = p => p.s || p.n.split(/[（(]/)[0].trim();
   const list = mapPlaces(mapDay);
-  const showLabels = vb.w < 45;
-  list.forEach((k, n) => {
-    const p = P[k]; const [x, y] = proj(p.lat, p.lon);
-    const ci = mapDay ? T.days.findIndex(x => x.date === mapDay) : T.days.findIndex(d => d.items.some(it => it.p === k) || d.sleep === k);
+  const stopLabels = mapDay || vb.w < 60;
+  let markH = "", labelH = "", baseH = "";
+  const pts = list.map((k, n) => { const p = P[k]; const [x, y] = proj(p.lat, p.lon); return { k, n, p, x, y }; });
+  const mr = mapDay ? r : r * .6;
+  pts.forEach(o => boxes.push({ x: o.x - mr, y: o.y - mr, w: mr * 2, h: mr * 2 }));
+  pts.forEach(({ k, n, p, x, y }) => {
+    const ci = mapDay ? T.days.findIndex(d => d.date === mapDay) : T.days.findIndex(d => d.items.some(it => it.p === k) || d.sleep === k);
     const col = DAY_COLORS[Math.max(0, ci)];
-    const label = mapDay ? String(n + 1) : "";
-    h += `<g class="mk" data-place="${k}" style="cursor:pointer"><circle cx="${x}" cy="${y}" r="${r * 1.6}" fill="transparent"/><circle cx="${x}" cy="${y}" r="${mapDay ? r : r * .6}" fill="${p.k === "hotel" ? "#ffffff" : col}" stroke="#0b1d2e" stroke-width="${px * 1.5}"/>`;
-    if (label) h += `<text x="${x}" y="${y + fs * .36}" font-size="${fs}" text-anchor="middle" font-weight="700" fill="#0b1d2e">${label}</text>`;
-    if (showLabels && mapDay) h += `<text x="${x + r * 1.3}" y="${y + fs * .36}" font-size="${fs}" fill="#eaf2f8" stroke="#0b1d2e" stroke-width="${px * 3}" paint-order="stroke">${esc(p.n)}</text>`;
-    h += `</g>`;
+    markH += `<g class="mk" data-place="${k}" style="cursor:pointer"><circle cx="${x}" cy="${y}" r="${r * 1.6}" fill="transparent"/><circle cx="${x}" cy="${y}" r="${mr}" fill="${p.k === "hotel" ? "#ffffff" : col}" stroke="#0b1d2e" stroke-width="${px * 1.5}"/>`;
+    if (mapDay) markH += `<text x="${x}" y="${y + fs * .36}" font-size="${fs}" text-anchor="middle" font-weight="700" fill="#0b1d2e">${n + 1}</text>`;
+    markH += `</g>`;
+    if (stopLabels) { const b = place(x, y, short(p), fs, mr * 1.4, ["r", "l", "br", "tr", "bl", "tl", "b", "t"]); if (b) labelH += txt(b, short(p), fs, "#eaf2f8"); }
   });
+  const tier = vb.w > 250 ? 1 : vb.w > 110 ? 2 : 3;
+  const bf = 11 * px;
+  GEO.filter(g => g[4] <= tier).forEach(([name, lat, lon, kind]) => {
+    const [x, y] = proj(lat, lon);
+    if (x < vb.x || x > vb.x + vb.w || y < vb.y || y > vb.y + vb.h) return;
+    if (kind === "ice") { const b = place(x, y, name, bf, 0, ["c"]); if (b) baseH += txt(b, name, bf, "#8fc1e0", 'font-style="italic"'); return; }
+    const dot = { x: x - 3 * px, y: y - 3 * px, w: 6 * px, h: 6 * px };
+    const b = place(x, y, name, bf, 6 * px, ["r", "l", "tr", "br", "tl", "bl", "t", "b"]);
+    if (b) { if (!hit(dot)) baseH += `<rect x="${x - 2 * px}" y="${y - 2 * px}" width="${4 * px}" height="${4 * px}" fill="#9db4c7"/>`; baseH += txt(b, name, bf, "#9db4c7"); }
+  });
+  h += baseH + markH + labelH;
+  // 比例尺
+  const kmU = 1 / 1.1119; const nice = [1, 2, 5, 10, 20, 50, 100, 200].find(k => k * kmU / px >= 50) || 200;
+  const sx = vb.x + 12 * px, sy = vb.y + vb.h - 12 * px, sl = nice * kmU;
+  h += `<path d="M${sx} ${sy - 4 * px}V${sy}H${sx + sl}V${sy - 4 * px}" fill="none" stroke="#9db4c7" stroke-width="${px * 1.5}"/><text x="${sx + sl + 5 * px}" y="${sy}" font-size="${10 * px}" fill="#9db4c7">${nice} km</text>`;
   if (gpsPos) { const [x, y] = proj(gpsPos.lat, gpsPos.lon); h += `<circle cx="${x}" cy="${y}" r="${r * 2.2}" fill="rgba(124,196,255,.25)"/><circle cx="${x}" cy="${y}" r="${r * .8}" fill="#2f8cff" stroke="#fff" stroke-width="${px * 2}"/>`; }
   svg.setAttribute("viewBox", `${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
   svg.innerHTML = h;
