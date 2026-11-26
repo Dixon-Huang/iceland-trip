@@ -1,5 +1,5 @@
 // 离线缓存：全部文件预先缓存，之后优先读缓存；有网时后台更新。
-const VERSION = "v8-2026-11-26";
+const VERSION = "v9-2026-11-26";
 const CACHE = "iceland-" + VERSION;
 const FILES = [
   "./", "index.html", "style.css", "app.js", "data.js", "map-shape.js", "manifest.webmanifest",

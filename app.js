@@ -45,8 +45,8 @@ function liveBlock(date) {
   if (r && r.total) {
     const cls = r.worstSev >= 4 ? "hi" : r.worstSev >= 2 ? "mid" : "ok";
     const bad = r.bad.map(b => `${esc(b.n.replace(/^Hringvegur:\s*/, "1号公路 "))}：${esc(b.zh)}`).join("<br>");
-    rows.push(["路况", `<b class="${cls}">${r.worstSev >= 2 ? "最差 " + esc(r.worst) : "全线畅通"}</b><span class="sub">${r.total} 个路段${bad ? "<br>" + bad : ""}</span>`]);
-  } else if (r) rows.push(["路况", `<span class="sub">无匹配路段</span>`]);
+    rows.push(["实时路况", `<b class="${cls}">${r.worstSev >= 2 ? "最差 " + esc(r.worst) : "全线畅通"}</b><span class="sub">${r.total} 个路段${bad ? "<br>" + bad : ""}</span>`]);
+  } else if (r) rows.push(["实时路况", `<span class="sub">无匹配路段</span>`]);
   const w = x.weather;
   if (w) {
     const g = w.gust >= 20 ? "hi" : w.gust >= 15 ? "mid" : "ok";
